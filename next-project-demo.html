@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Project - Demo</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Manrope, sans-serif; font-size: 13px; background: #f0f0f0; color: #333; }
+
+/* TOP NAV */
+.top-nav { background: #1a5c3a; color: white; height: 44px; display: flex; align-items: center; padding: 0 16px; gap: 16px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.top-nav .logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: bold; color: white; text-decoration: none; }
+.top-nav .logo-icon { width: 30px; height: 30px; background: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+.top-nav .logo-icon svg { width: 20px; height: 20px; }
+.top-nav .company { margin-left: 8px; font-size: 13px; display: flex; align-items: center; gap: 4px; }
+.top-nav .spacer { flex: 1; }
+.top-nav .nav-btn { background: none; border: none; color: white; font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-family: inherit; display: flex; align-items: center; gap: 4px; }
+.top-nav .nav-btn:hover { background: rgba(255,255,255,0.15); }
+.top-nav .dropdown-menu { display: none; position: absolute; top: 44px; background: white; color: #333; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 160px; z-index: 2000; }
+.top-nav .nav-item { position: relative; }
+.top-nav .nav-item:hover .dropdown-menu { display: block; }
+.top-nav .dropdown-menu a { display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; }
+.top-nav .dropdown-menu a:hover { background: #f5f5f5; }
+
+/* MAIN LAYOUT */
+.main-wrapper { display: flex; height: 100vh; padding-top: 44px; }
+
+/* LEFT PANEL */
+.left-panel { width: 350px; min-width: 220px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; overflow: hidden; }
+.left-panel-toolbar { display: flex; align-items: center; padding: 4px 8px; border-bottom: 1px solid #eee; gap: 8px; }
+.left-panel-toolbar .icon-btn { background: none; border: none; cursor: pointer; color: #666; font-size: 16px; padding: 2px 4px; border-radius: 3px; }
+.left-panel-toolbar .icon-btn:hover { background: #f0f0f0; }
+.left-panel-toolbar .search-btn { margin-left: auto; }
+.tree-container { flex: 1; overflow-y: auto; padding: 4px 0; }
+.tree-item { display: flex; align-items: center; padding: 2px 8px; cursor: pointer; font-size: 12px; color: #333; }
+.tree-item:hover { background: #f5f5f5; }
+.tree-item.selected { background: #e3f0ea; }
+.tree-item .expand { width: 16px; text-align: center; color: #666; font-size: 10px; cursor: pointer; }
+.tree-item .dot { width: 12px; height: 12px; border-radius: 50%; margin: 0 4px; flex-shrink: 0; }
+.tree-item .label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tree-indent-1 { padding-left: 24px; }
+.tree-indent-2 { padding-left: 40px; }
+.tree-indent-3 { padding-left: 56px; }
+.tree-indent-4 { padding-left: 72px; }
+
+/* RESIZE DIVIDER */
+.resize-handle { width: 4px; background: #e0e0e0; cursor: col-resize; }
+.resize-handle:hover { background: #1a5c3a; }
+
+/* RIGHT PANEL */
+.right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TAB BARS */
+.main-tabs { background: white; border-bottom: 2px solid #1a5c3a; display: flex; align-items: center; padding: 0 4px; overflow-x: auto; scrollbar-width: none; }
+.main-tabs::-webkit-scrollbar { display: none; }
+.main-tabs .tab { padding: 8px 14px; cursor: pointer; font-size: 13px; white-space: nowrap; border-bottom: 3px solid transparent; margin-bottom: -2px; color: #555; }
+.main-tabs .tab:hover { background: #f5f5f5; color: #1a5c3a; }
+.main-tabs .tab.active { color: #1a5c3a; font-weight: 600; border-bottom-color: #1a5c3a; background: white; }
+.main-tabs .tab-scroll-btn { background: none; border: none; cursor: pointer; color: #666; padding: 8px 4px; font-size: 16px; }
+.sub-tabs { background: #f8f8f8; border-bottom: 1px solid #ddd; display: flex; padding: 0 4px; }
+.sub-tabs .tab { padding: 6px 14px; cursor: pointer; font-size: 12px; color: #555; border-bottom: 2px solid transparent; }
+.sub-tabs .tab:hover { background: #eee; }
+.sub-tabs .tab.active { color: #1a5c3a; font-weight: 600; border-bottom-color: #1a5c3a; }
+
+/* CONTENT AREA */
+.content-area { flex: 1; overflow-y: auto; padding: 0; background: #f8f8f8; }
+
+/* TOOLBAR */
+.toolbar { display: flex; align-items: center; padding: 4px 8px; background: white; border-bottom: 1px solid #eee; gap: 4px; }
+.toolbar .tool-btn { background: none; border: 1px solid transparent; cursor: pointer; padding: 3px 6px; border-radius: 3px; font-size: 13px; color: #444; display: flex; align-items: center; gap: 4px; font-family: inherit; }
+.toolbar .tool-btn:hover { background: #f0f0f0; border-color: #ddd; }
+.toolbar .tool-btn.green { background: #1a5c3a; color: white; border-color: #1a5c3a; }
+.toolbar .tool-btn.green:hover { background: #145030; }
+.toolbar .divider { width: 1px; height: 20px; background: #ddd; margin: 0 4px; }
+
+/* FORM SECTIONS */
+.form-section { background: white; border: 1px solid #e0e0e0; margin: 8px; border-radius: 4px; overflow: hidden; }
+.section-header { background: #e8f4ee; padding: 4px 10px; font-size: 11px; font-weight: 600; color: #1a5c3a; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.section-header .toggle { color: #1a5c3a; font-size: 10px; }
+.section-body { padding: 10px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+.form-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+.form-label { width: 130px; min-width: 130px; font-size: 12px; color: #555; padding-top: 4px; }
+.form-control { flex: 1; }
+.form-input { width: 100%; height: 26px; border: 1px solid #ccc; border-radius: 3px; padding: 0 6px; font-size: 12px; font-family: inherit; background: white; }
+.form-input:focus { outline: none; border-color: #1a5c3a; }
+.form-select { width: 100%; height: 26px; border: 1px solid #ccc; border-radius: 3px; padding: 0 6px; font-size: 12px; font-family: inherit; background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%23666"/></svg>') no-repeat right 6px center; background-size: 10px; -webkit-appearance: none; appearance: none; }
+.form-textarea { width: 100%; min-height: 50px; border: 1px solid #ccc; border-radius: 3px; padding: 4px 6px; font-size: 12px; font-family: inherit; resize: vertical; }
+.input-with-btn { display: flex; gap: 4px; }
+.input-with-btn .form-input, .input-with-btn .form-select { flex: 1; }
+.input-btn { height: 26px; padding: 0 6px; border: 1px solid #ccc; border-radius: 3px; background: #f5f5f5; cursor: pointer; font-size: 12px; white-space: nowrap; }
+.input-btn:hover { background: #e8e8e8; }
+
+/* GRID TABLE */
+.grid-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.grid-table th { background: #f0f0f0; border: 1px solid #ddd; padding: 4px 8px; text-align: left; font-weight: 600; white-space: nowrap; color: #444; }
+.grid-table td { border: 1px solid #eee; padding: 3px 8px; white-space: nowrap; }
+.grid-table tr:hover td { background: #f5fbf7; }
+.grid-table tr.selected td { background: #d6ead9; }
+.grid-toolbar { display: flex; align-items: center; padding: 4px 8px; background: #f8f8f8; border-bottom: 1px solid #ddd; gap: 4px; }
+.grid-toolbar .tool-btn { background: none; border: 1px solid transparent; cursor: pointer; padding: 2px 6px; border-radius: 3px; font-size: 12px; color: #444; }
+.grid-toolbar .tool-btn:hover { background: #eee; }
+.status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.status-utfort { background: #e8f4ee; color: #1a5c3a; }
+.status-ny { background: #fff3cd; color: #856404; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* STATUS FILTER BUTTONS */
+.status-filter-bar { display: flex; align-items: center; padding: 4px 8px; background: white; border-bottom: 1px solid #eee; gap: 4px; flex-wrap: wrap; }
+.status-filter-bar .sf-btn { padding: 3px 10px; border-radius: 10px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 11px; font-family: inherit; color: #444; }
+.status-filter-bar .sf-btn:hover { background: #f5f5f5; }
+.status-filter-bar .sf-btn.active { background: #1a5c3a; color: white; border-color: #1a5c3a; }
+.status-filter-bar .separator { width: 1px; height: 16px; background: #ddd; }
+
+/* PANEL DIVIDER */
+.h-divider { height: 4px; background: #e0e0e0; cursor: row-resize; }
+.h-divider:hover { background: #1a5c3a; }
+
+/* CALENDAR */
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+.calendar-header-cell { text-align: center; font-weight: 600; font-size: 11px; padding: 4px; color: #666; }
+.calendar-day { text-align: center; padding: 6px; font-size: 12px; cursor: pointer; border-radius: 3px; }
+.calendar-day:hover { background: #e8f4ee; }
+.calendar-day.today { color: #1a5c3a; font-weight: bold; }
+.calendar-day.weekend { color: #cc0000; }
+
+/* RESPONSIVE TABS (scrollable) */
+.tab-nav-container { display: flex; align-items: center; overflow: hidden; }
+.tab-scroll-left, .tab-scroll-right { background: white; border: none; cursor: pointer; padding: 4px; color: #666; font-size: 14px; flex-shrink: 0; }
+
+/* HIDDEN CONTENT */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.sub-tab-content { display: none; }
+.sub-tab-content.active { display: block; }
+
+/* NYCKELTAL TABLE */
+.nyckeltal-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.nyckeltal-table th { background: #f0f0f0; border: 1px solid #ddd; padding: 4px 12px; text-align: right; font-weight: 600; }
+.nyckeltal-table th:first-child { text-align: left; }
+.nyckeltal-table td { border: 1px solid #eee; padding: 3px 12px; text-align: right; }
+.nyckeltal-table td:first-child, .nyckeltal-table td:nth-child(2) { text-align: left; }
+.nyckeltal-table tr:hover td { background: #f5fbf7; }
+
+/* MAP PLACEHOLDER */
+.map-placeholder { width: 100%; height: 500px; background: #c8d8c0; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #666; }
+
+/* PLANNING GRID */
+.planning-grid { overflow-x: auto; }
+.planning-table { border-collapse: collapse; font-size: 11px; min-width: 100%; }
+.planning-table th, .planning-table td { border: 1px solid #ddd; padding: 3px 6px; white-space: nowrap; }
+.planning-table th { background: #f0f0f0; }
+.planning-table .name-col { min-width: 150px; background: #fafafa; }
+.planning-table .date-col { min-width: 60px; text-align: center; }
+
+/* INLINE TABS (sub navigation in panels) */
+.inline-tab-bar { display: flex; border-bottom: 1px solid #ddd; background: #fafafa; }
+.inline-tab-bar .tab { padding: 5px 12px; font-size: 12px; cursor: pointer; color: #555; border-bottom: 2px solid transparent; }
+.inline-tab-bar .tab.active { color: #1a5c3a; border-bottom-color: #1a5c3a; font-weight: 600; }
+.inline-tab-bar .tab:hover { background: #f0f0f0; }
+
+/* SPLIT PANELS */
+.split-top { height: 200px; overflow-y: auto; border-bottom: 1px solid #ddd; }
+.split-bottom { flex: 1; overflow-y: auto; }
+.split-wrapper { display: flex; flex-direction: column; height: 100%; }
+
+/* DAGBOK LAYOUT */
+.dagbok-layout { display: flex; height: 100%; }
+.dagbok-cal { width: 280px; border-right: 1px solid #ddd; padding: 8px; background: white; }
+.dagbok-right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.dagbok-section { padding: 8px; border-bottom: 1px solid #eee; }
+.dagbok-section-title { font-size: 11px; font-weight: 600; color: #555; margin-bottom: 4px; }
+.dagbok-textarea { width: 100%; min-height: 60px; border: 1px solid #ddd; border-radius: 3px; padding: 4px 6px; font-size: 12px; font-family: inherit; resize: vertical; }
+
+/* AVVIKELSE SPLIT */
+.avvik-left { width: 55%; border-right: 1px solid #ddd; overflow-y: auto; }
+.avvik-right { flex: 1; overflow-y: auto; padding: 8px; background: white; }
+.avvik-right .form-row { margin-bottom: 8px; }
+.avvik-label { font-size: 11px; color: #555; width: 120px; min-width: 120px; }
+
+/* SCROLL INDICATOR */
+.scrollbar-x { overflow-x: auto; }
+
+/* ICON STYLES */
+.icon { font-style: normal; }
+
+/* STATUS DOTS FOR TREE */
+.dot-orange { background: #f59e0b; }
+.dot-yellow { background: #fbbf24; }
+.dot-green { background: #10b981; }
+.dot-pink { background: #f9a8d4; }
+.dot-gray { background: #9ca3af; }
+.dot-white { background: white; border: 1px solid #ccc; }
+.dot-purple { background: #8b5cf6; }
+.dot-darkgreen { background: #065f46; }
+
+/* FAKTURA */
+.faktura-side-tab { writing-mode: vertical-rl; background: #f0f0f0; border-left: 1px solid #ddd; padding: 8px 4px; font-size: 11px; cursor: pointer; }
+
+/* SCROLLABLE PANEL */
+.scrollable-x { overflow-x: auto; }
+
+/* TOP TOOLBAR WITH COUNT */
+.row-count { background: #e8f4ee; color: #1a5c3a; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+/* CHECKBOX */
+input[type=checkbox] { cursor: pointer; }
+
+/* BUDGET TABS */
+.budget-sub-toolbar { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid #ddd; background: #f8f8f8; flex-wrap: wrap; }
+.budget-sub-toolbar .tool-btn { font-size: 12px; padding: 3px 8px; border: 1px solid #ddd; border-radius: 3px; cursor: pointer; background: white; font-family: inherit; }
+.budget-sub-toolbar .tool-btn:hover { background: #f0f0f0; }
+
+/* SUMMARY ROW */
+.summary-row td { background: #f9f9f9; font-weight: 600; }
+
+/* REFERENCE TABLE */
+.ref-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ref-table th, .ref-table td { border: 1px solid #ddd; padding: 4px 6px; }
+.ref-table th { background: #f0f0f0; }
+
+/* RICH TEXT EDITOR TOOLBAR */
+.rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 3px 6px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 3px 3px 0 0; }
+.rte-btn { background: none; border: 1px solid transparent; border-radius: 2px; padding: 1px 4px; cursor: pointer; font-size: 13px; color: #444; }
+.rte-btn:hover { background: #e0e0e0; }
+.rte-area { border: 1px solid #ddd; border-top: none; min-height: 80px; padding: 6px; font-size: 12px; border-radius: 0 0 3px 3px; background: white; }
+
+/* VERTICAL SPLIT */
+.v-split { display: flex; height: 100%; }
+</style>
+</head>
+<body>
+<!-- TOP NAVIGATION -->
+<nav class="top-nav">
+  <a href="#" class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M3 4h14v2H3V4zm0 5h14v2H3V9zm0 5h10v2H3v-2z" fill="#1a5c3a"/><path d="M15 12l4 4-4 4V12z" fill="#f59e0b"/></svg></div>
+    <span>Next Project</span>
+  </a>
+  <div class="nav-item company">
+    <span>Medvilja AB</span>
+    <span style="font-size:10px">&#9432;</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="nav-item">
+    <button class="nav-btn" onclick="toggleDropdown('acc-menu')">Accurator &#9660;</button>
+    <div class="dropdown-menu" id="acc-menu">
+      <a href="#">Fakturor</a>
+      <a href="#">Leverantörsfakturor</a>
+      <a href="#">Bokföring</a>
+    </div>
+  </div>
+  <button class="nav-btn">Meddelanden</button>
+  <button class="nav-btn">Kunder</button>
+  <button class="nav-btn">Leverantörer</button>
+  <button class="nav-btn">Prislista</button>
+  <button class="nav-btn">Timpriser</button>
+  <button class="nav-btn">Administration</button>
+  <button class="nav-btn">Support &#9432;</button>
+  <button class="nav-btn">Logga ut &#10140;</button>
+</nav>
+
+<!-- MAIN WRAPPER -->
+<div class="main-wrapper">
+
+  <!-- LEFT PANEL: PROJECT TREE -->
+  <div class="left-panel" id="leftPanel">
+    <div class="left-panel-toolbar">
+      <span style="font-size:11px;font-weight:600;color:#555">Projekt</span>
+      <button class="icon-btn" title="Expandera alla">&#9782;</button>
+      <button class="icon-btn" title="Uppdatera">&#8635;</button>
+      <button class="icon-btn search-btn" title="Sök">&#128269;</button>
+    </div>
+    <div class="status-filter-bar">
+      <button class="sf-btn" onclick="filterTree(this)">Mallar</button>
+      <button class="sf-btn" onclick="filterTree(this)">Admin</button>
+      <button class="sf-btn" onclick="filterTree(this)">Offert</button>
+      <button class="sf-btn active" onclick="filterTree(this)">Nytt</button>
+      <button class="sf-btn active" onclick="filterTree(this)">Beställt</button>
+      <button class="sf-btn active" onclick="filterTree(this)">Pågående</button>
+      <button class="sf-btn active" onclick="filterTree(this)">Utfört</button>
+      <button class="sf-btn" onclick="filterTree(this)">Klart för fakturering</button>
+      <button class="sf-btn" onclick="filterTree(this)">Fakturerat</button>
+      <button class="sf-btn" onclick="filterTree(this)">Avslutat</button>
+      <div class="separator"></div>
+      <button class="sf-btn" onclick="showCreditInfo()">Visa kreditinformation</button>
+    </div>
+    <div class="tree-container" id="projectTree">
+      <div class="tree-item" onclick="selectProject(this)">
+        <span class="expand" onclick="toggleTree(event,'t0')">&#9660;</span>
+        <span class="dot dot-gray"></span>
+        <span class="label">00 Medvilja AB</span>
+      </div>
+      <div id="t0">
+        <div class="tree-item tree-indent-1" onclick="selectProject(this)">
+          <span class="expand" onclick="toggleTree(event,'t1')">+</span>
+          <span class="dot dot-purple"></span>
+          <span class="label">001 Mallar</span>
+        </div>
+        <div id="t1" style="display:none"></div>
+        <div class="tree-item tree-indent-1" onclick="selectProject(this)">
+          <span class="expand" onclick="toggleTree(event,'t2')">&#9660;</span>
+          <span class="dot dot-gray"></span>
+          <span class="label">10 Entreprenader</span>
+        </div>
+        <div id="t2">
+          <div class="tree-item tree-indent-2" onclick="selectProject(this)">
+            <span class="expand" onclick="toggleTree(event,'t3')">&#9660;</span>
+            <span class="dot dot-gray"></span>
+            <span class="label">AVKLARAT</span>
+          </div>
+          <div id="t3">
+            <div class="tree-item tree-indent-3" onclick="selectProject(this)">
+              <span class="expand" onclick="toggleTree(event,'t4')">&#9660;</span>
+              <span class="dot dot-gray"></span>
+              <span class="label">11 Mats Segerdahl</span>
+            </div>
+            <div id="t4">
+              <div class="tree-item tree-indent-4 selected" onclick="selectProject(this)" id="proj24401">
+                <span class="expand"></span>
+                <span class="dot dot-orange"></span>
+                <span class="label">24-0401 Energiprincipen Skallsjö</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="label">24-0402 Energiprincipen Sverige AB</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-orange"></span>
+                <span class="label">24-0403 Energiprincipen Hinden AB</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-pink"></span>
+                <span class="label">24-1201 Solkatten kontor</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="label">25-0401 Villa Sjöliden</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="label">25-0601 Höjdenvägen FAS 2</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="label">25-0801 Lisas</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-darkgreen"></span>
+                <span class="label">25-1201 Gobi Floda</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-darkgreen"></span>
+                <span class="label">25-1202 Walters Bil - Falkenberg</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-darkgreen"></span>
+                <span class="label">25-1203 Solkatten - Brand Elgiganten</span>
+              </div>
+              <div class="tree-item tree-indent-4" onclick="selectProject(this)">
+                <span class="expand"></span>
+                <span class="dot dot-darkgreen"></span>
+                <span class="label">25-1204 Solkatten - Löpande arbeten</span>
+              </div>
+            </div>
+          </div>
+          <div class="tree-item tree-indent-2" onclick="selectProject(this)">
+            <span class="expand"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="label">991 Övriga omkostnader</span>
+          </div>
+          <div class="tree-item tree-indent-2" onclick="selectProject(this)">
+            <span class="expand"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="label">992 Vidarefaktureras Talang</span>
+          </div>
+          <div class="tree-item tree-indent-2" onclick="selectProject(this)">
+            <span class="expand" onclick="toggleTree(event,'t5')">+</span>
+            <span class="dot dot-yellow"></span>
+            <span class="label">993 Gärdesgården</span>
+          </div>
+          <div id="t5" style="display:none"></div>
+          <div class="tree-item tree-indent-2" onclick="selectProject(this)">
+            <span class="expand"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="label">999 OBS Projekt</span>
+          </div>
+        </div>
+        <div class="tree-item tree-indent-1" onclick="selectProject(this)">
+          <span class="expand"></span>
+          <span class="dot dot-gray"></span>
+          <span class="label">20 Storkunder</span>
+        </div>
+        <div class="tree-item tree-indent-1" onclick="selectProject(this)">
+          <span class="expand" onclick="toggleTree(event,'t6')">+</span>
+          <span class="dot dot-yellow"></span>
+          <span class="label">23 KALKYLER</span>
+        </div>
+        <div id="t6" style="display:none">
+          <div class="tree-item tree-indent-2" onclick="selectProject(this)">
+            <span class="expand"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="label">23-999-1 Fogsprutor</span>
+          </div>
+        </div>
+        <div class="tree-item tree-indent-1" onclick="selectProject(this)">
+          <span class="expand" onclick="toggleTree(event,'t7')">+</span>
+          <span class="dot dot-gray"></span>
+          <span class="label">90 Internt</span>
+        </div>
+        <div id="t7" style="display:none"></div>
+        <div class="tree-item tree-indent-1" onclick="selectProject(this)">
+          <span class="expand"></span>
+          <span class="dot dot-gray"></span>
+          <span class="label">100 Gemensamma kostnader</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;padding:6px;border-top:1px solid #eee;flex-wrap:wrap">
+      <span style="width:12px;height:12px;border-radius:50%;background:#f9a8d4;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#fde68a;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#fcd34d;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:white;border:1px solid #ccc;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#6ee7b7;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#10b981;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#3b82f6;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:white;border:1px solid #ccc;display:inline-block"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#111;display:inline-block"></span>
+    </div>
+  </div>
+
+  <div class="resize-handle" id="resizeHandle"></div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <!-- MAIN TABS -->
+    <div style="display:flex;align-items:center;background:white;border-bottom:2px solid #1a5c3a">
+      <button class="tab-scroll-left" onclick="scrollTabs(-1)">&#8249;</button>
+      <div class="main-tabs" id="mainTabBar">
+        <div class="tab active" onclick="switchMainTab(this,'tab-projekt')" data-tab="tab-projekt">Projekt</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-projektoversikt')" data-tab="tab-projektoversikt">Projektöversikt</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-budget')" data-tab="tab-budget">Budget</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-inkop')" data-tab="tab-inkop">Inköp</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-arbetsorder')" data-tab="tab-arbetsorder">Arbetsorder</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-anbud')" data-tab="tab-anbud">Anbud/avtal</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-avvikelse')" data-tab="tab-avvikelse">Avvikelse</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-ata')" data-tab="tab-ata">ÄTA</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-planering')" data-tab="tab-planering">Planering</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-bokf-kostn')" data-tab="tab-bokf-kostn">Bokf kostn/Int</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-bokf-timmar')" data-tab="tab-bokf-timmar">Bokf timmar</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-prognos')" data-tab="tab-prognos">Prognos</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-faktura')" data-tab="tab-faktura">Faktura</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-dagbok')" data-tab="tab-dagbok">Dagbok</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-dagbok2')" data-tab="tab-dagbok2">Dagbok 2.0</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-dokument')" data-tab="tab-dokument">Dokument</div>
+        <div class="tab" onclick="switchMainTab(this,'tab-karta')" data-tab="tab-karta">Karta</div>
+      </div>
+      <button class="tab-scroll-left" onclick="scrollTabs(1)">&#8250;</button>
+    </div>
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+
+      <!-- ===== TAB: PROJEKT ===== -->
+      <div class="tab-content active" id="tab-projekt">
+        <!-- Sub tabs -->
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'proj-projektinfo')" data-tab="proj-projektinfo">Projektinformation</div>
+          <div class="tab" onclick="switchSubTab(this,'proj-kontaktlista')" data-tab="proj-kontaktlista">Kontaktlista</div>
+          <div class="tab" onclick="switchSubTab(this,'proj-betalplan')" data-tab="proj-betalplan">Betalplan</div>
+          <div class="tab" onclick="switchSubTab(this,'proj-installningar')" data-tab="proj-installningar">Projektinställningar</div>
+        </div>
+
+        <!-- Projektinformation -->
+        <div class="sub-tab-content active" id="proj-projektinfo">
+          <div class="toolbar">
+            <button class="tool-btn green" title="Lägg till">&#43;</button>
+            <button class="tool-btn" title="Spara">&#128190;</button>
+            <button class="tool-btn" title="Radera">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn" title="Skapa från mall">&#128196;</button>
+            <button class="tool-btn" title="Öppna dialog för portaldelning">&#128257;</button>
+            <button class="tool-btn" title="Dela">&#8636;</button>
+            <div style="margin-left:auto">
+              <button class="tool-btn" title="Uppdatera">&#8635;</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <span class="toggle">&#9660;</span> PROJEKT
+            </div>
+            <div class="section-body">
+              <div class="form-grid">
+                <div class="form-row">
+                  <span class="form-label">Projektnr:</span>
+                  <div class="form-control"><input type="text" class="form-input" value="24-0401"></div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Projektnamn:</span>
+                  <div class="form-control"><input type="text" class="form-input" value="Energiprincipen Skallsjö"></div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Projekttyp:</span>
+                  <div class="form-control">
+                    <select class="form-select">
+                      <option selected>Totalentreprenad</option>
+                      <option>Utförandeentreprenad</option>
+                      <option>Servicearbete</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Ersättningsform:</span>
+                  <div class="form-control">
+                    <select class="form-select">
+                      <option selected>Löpande räkning</option>
+                      <option>Fast pris</option>
+                      <option>Räkning + påslag</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Projektledare:</span>
+                  <div class="form-control">
+                    <select class="form-select">
+                      <option selected>Mats Segerdahl</option>
+                      <option>Karl-Magnus Hake</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Arbetsledare:</span>
+                  <div class="form-control">
+                    <select class="form-select"><option value=""></option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Projektkategori:</span>
+                  <div class="form-control">
+                    <select class="form-select">
+                      <option selected>Företag</option>
+                      <option>Privat</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Note/Spec:</span>
+                  <div class="form-control">
+                    <div class="input-with-btn">
+                      <textarea class="form-textarea" rows="2"></textarea>
+                      <button class="input-btn">...</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <span class="form-label">Intern notering:</span>
+                <div class="form-control">
+                  <div class="input-with-btn">
+                    <textarea class="form-textarea" style="min-height:50px"></textarea>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header" onclick="toggleSection(this)"><span class="toggle">&#9660;</span> KUND</div>
+            <div class="section-body">
+              <div class="form-row">
+                <span class="form-label">Kund:</span>
+                <div class="form-control">
+                  <div class="input-with-btn">
+                    <select class="form-select"><option selected>Energiprincipen Skallsjö</option></select>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+                <span class="form-label" style="margin-left:16px">Kundkontakt:</span>
+                <div class="form-control">
+                  <div class="input-with-btn">
+                    <select class="form-select"><option value=""></option></select>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <span class="form-label">Referenser</span>
+                <div class="form-control" style="flex:none;width:400px">
+                  <table class="ref-table">
+                    <thead><tr><th></th><th></th><th>Referensnr</th><th>Värde</th><th>Arbetsorder</th><th>ÄTA</th></tr></thead>
+                    <tbody><tr><td>1</td><td><button style="border:none;background:none;cursor:pointer">&#8286;</button></td><td>Kundref nr</td><td></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header" onclick="toggleSection(this)"><span class="toggle">&#9660;</span> PROJEKTSTATUS</div>
+            <div class="section-body">
+              <div class="form-grid">
+                <div class="form-row">
+                  <span class="form-label">Projektstart:</span>
+                  <div class="form-control"><input type="text" class="form-input" value="2024-04-15" placeholder="År-Mån-Dag"></div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Projektslut:</span>
+                  <div class="form-control"><input type="text" class="form-input" value="" placeholder="År-Mån-Dag"></div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Status:</span>
+                  <div class="form-control">
+                    <div class="input-with-btn">
+                      <select class="form-select"><option selected>🟠 Utfört</option><option>Nytt</option><option>Pågående</option><option>Fakturerat</option></select>
+                      <button class="input-btn">...</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Orderdatum:</span>
+                  <div class="form-control"><input type="text" class="form-input" value=""></div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Slutbesiktning:</span>
+                  <div class="form-control"><input type="text" class="form-input" value=""></div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Garantitid:</span>
+                  <div class="form-control"><input type="text" class="form-input" value=""></div>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Garantibesiktning:</span>
+                  <div class="form-control"><input type="text" class="form-input" value=""></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header" onclick="toggleSection(this)"><span class="toggle">&#9660;</span> FAKTURERING</div>
+            <div class="section-body">
+              <div class="form-row">
+                <span class="form-label">Påslagsmall:</span>
+                <div class="form-control">
+                  <div class="input-with-btn">
+                    <select class="form-select"><option selected>8% Produktionskostn</option></select>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+                <span class="form-label" style="margin-left:16px">Ramavtal:</span>
+                <div class="form-control">
+                  <select class="form-select"><option value=""></option></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <span class="form-label">Deb./timma:</span>
+                <div class="form-control">
+                  <span style="font-size:12px">Kund / Projekt: <strong>Standard / Standard</strong></span>
+                  <button class="input-btn" style="margin-left:8px">...</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header" onclick="toggleSection(this)"><span class="toggle">&#9660;</span> NYCKELTAL</div>
+            <div class="section-body" style="overflow-x:auto">
+              <div class="toolbar" style="margin-bottom:4px">
+                <button class="tool-btn">Visa underliggande data</button>
+                <button class="tool-btn">&#8635; Uppdatera</button>
+                <button class="tool-btn">Sök</button>
+              </div>
+              <table class="nyckeltal-table">
+                <thead><tr><th></th><th></th><th>Timmar</th><th>Kostnad</th><th>Intäkter</th><th>TB</th><th>TG%</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>Budget</td><td>0,00</td><td>0,00</td><td>0,00</td><td>0,00</td><td>0,0</td></tr>
+                  <tr><td>2</td><td>Bokfört ÄTA</td><td>0,00</td><td>0,00</td><td>0,00</td><td>0,00</td><td>0,0</td></tr>
+                  <tr><td>3</td><td>Bokfört, ej ÄTA</td><td>0,00</td><td>31 758,10</td><td>1 183 716,57</td><td>1 151 958,47</td><td>97,3</td></tr>
+                  <tr><td>4</td><td>S:a bokfört</td><td>0,00</td><td>31 758,10</td><td>1 183 716,57</td><td>1 151 958,47</td><td>97,3</td></tr>
+                  <tr><td>5</td><td>Prognos</td><td>0,00</td><td>0,00</td><td>0,00</td><td>0,00</td><td>0,0</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header" onclick="toggleSection(this)"><span class="toggle">&#9660;</span> ARBETSPLATSADRESS</div>
+            <div class="section-body">
+              <div class="form-grid">
+                <div class="form-row"><span class="form-label">Adress:</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+                <div class="form-row"><span class="form-label">Adressrad 2:</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+                <div class="form-row"><span class="form-label">Postnr:</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+                <div class="form-row"><span class="form-label">Ort:</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+                <div class="form-row"><span class="form-label">Sträcka (km):</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+                <div class="form-row"><span class="form-label">Arbetsplatsid:</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kontaktlista -->
+        <div class="sub-tab-content" id="proj-kontaktlista">
+          <div class="toolbar">
+            <button class="tool-btn green">Kontaktlista +</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn">&#9993; Skicka e-post</button>
+            <button class="tool-btn">Visa e-postarkiv</button>
+            <button class="tool-btn">&#128247;</button>
+          </div>
+          <div class="scrollable-x">
+            <table class="grid-table">
+              <thead><tr><th>&#9661;</th><th>Roll</th><th>Typ</th><th>Företag</th><th>Kontakt</th><th>Mobil</th><th>Telefon</th><th>E-post</th></tr></thead>
+              <tbody>
+                <tr class="selected"><td>1</td><td>Projektledare</td><td>Intern</td><td>Medvilja AB</td><td>Mats Segerdahl</td><td>0707-647453</td><td></td><td>mats@talang.nu</td></tr>
+                <tr><td>2</td><td>Arbetsledare</td><td>Intern</td><td>Medvilja AB</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>3</td><td>Kundkontakt</td><td>Kund</td><td>Medvilja AB</td><td></td><td></td><td></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Betalplan -->
+        <div class="sub-tab-content" id="proj-betalplan">
+          <div class="toolbar">
+            <button class="tool-btn green">+</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <span style="font-size:12px;color:#555">Revision:</span>
+            <select style="font-size:12px;border:1px solid #ccc;border-radius:3px;padding:0 4px;height:24px">
+              <option value=""></option>
+            </select>
+            <button class="tool-btn">Ändra betalplan</button>
+            <button class="tool-btn">Skapa ny revision</button>
+            <button class="tool-btn">Fakturaäval &#9660;</button>
+            <button class="tool-btn">Skicka betalplan</button>
+            <button class="tool-btn">Visa e-postarkiv</button>
+            <button class="tool-btn">Visa kompakt vy</button>
+          </div>
+          <div class="form-section" style="margin:8px">
+            <div class="section-body">
+              <div style="overflow-x:auto">
+                <div style="display:flex;gap:32px;flex-wrap:wrap;padding:8px">
+                  <div class="form-row"><span class="form-label">Upprättad av:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Kontraktssumma:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Max innehållet, belopp:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Upprättad datum:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Innehållet, % per lyft:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Ackumulerat innehållet, belopp:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Reviderad av:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Max innehållet, % av kontrakt:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Fakturerat belopp:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Reviderad datum:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Momstyp:</span><div class="form-control"><select class="form-select" style="width:150px"><option value=""></option></select></div></div>
+                  <div class="form-row"><span class="form-label">Justering slutfaktura:</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                  <div class="form-row"><span class="form-label">Kontakt beställare:</span><div class="form-control"><div class="input-with-btn"><select class="form-select" style="width:120px"><option value=""></option></select><button class="input-btn">...</button></div></div></div>
+                  <div class="form-row"><span class="form-label">Godkänd av beställare:</span><div class="form-control"><div class="input-with-btn"><input type="text" class="form-input" style="width:120px" value=""><button class="input-btn">&#128197;</button></div></div></div>
+                  <div class="form-row"><span class="form-label">Slutfakturerat, datum (fakturanr):</span><div class="form-control"><input type="text" class="form-input" value="" style="width:150px"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projektinställningar -->
+        <div class="sub-tab-content" id="proj-installningar">
+          <div class="toolbar">
+            <button class="tool-btn">&#128190;</button>
+          </div>
+          <div class="form-section">
+            <div class="section-header" onclick="toggleSection(this)"><span class="toggle">&#9660;</span> ACCURATOR</div>
+            <div class="section-body">
+              <div class="form-row">
+                <span class="form-label">Visa i Accurator:</span>
+                <div class="form-control"><input type="checkbox"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ===== TAB: PROJEKTOVERSIKT ===== -->
+      <div class="tab-content" id="tab-projektoversikt">
+        <div class="toolbar">
+          <button class="tool-btn">&#128190;</button>
+          <div class="divider"></div>
+          <label><input type="checkbox"> Visa intervallfilter</label>
+          <button class="tool-btn">&#10140; Hämta projekt</button>
+          <button class="tool-btn" style="color:#aaa">Visa statushistorik</button>
+          <button class="tool-btn">&#11123; Importera data</button>
+          <button class="tool-btn">&#128247;</button>
+          <div style="margin-left:auto;display:flex;gap:4px">
+            <button class="tool-btn">&#8635;</button>
+            <button class="tool-btn">&#9664;</button>
+            <button class="tool-btn">&#9654;</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#10041;</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:#f8f8f8;border-bottom:1px solid #eee;font-size:12px">
+          <span class="row-count">1 post</span>
+          <span style="color:#888">0,00</span>
+        </div>
+        <div class="scrollable-x">
+          <table class="grid-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox"></th>
+                <th>&#9661;</th>
+                <th>Proje...</th>
+                <th>Proje...</th>
+                <th>Projektledare</th>
+                <th>Arbetsplatsid</th>
+                <th>Projektstart</th>
+                <th>Orderdatu...</th>
+                <th>Kundnamn</th>
+                <th>Projektstatus</th>
+                <th>Budg kostnad</th>
+                <th>Budg intäkt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="selected">
+                <td><input type="checkbox"></td>
+                <td>1</td>
+                <td>24-0...</td>
+                <td>Ener...</td>
+                <td>Mats Segerdahl</td>
+                <td></td>
+                <td>2024-04-15</td>
+                <td></td>
+                <td>Energiprincipen Skallsjö</td>
+                <td><span class="status-badge status-utfort"><span class="status-dot" style="background:#f59e0b"></span> Utfört</span></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== TAB: BUDGET ===== -->
+      <div class="tab-content" id="tab-budget">
+        <div class="toolbar">
+          <button class="tool-btn green">+</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div style="margin-left:auto"><button class="tool-btn">&#8635;</button></div>
+        </div>
+        <div style="background:white;padding:10px;border-bottom:1px solid #eee">
+          <div class="form-grid">
+            <div class="form-row"><span class="form-label">Namn:</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+            <div class="form-row"><span class="form-label">Upprättad av:</span><div class="form-control"><input type="text" class="form-input" value="" style="background:#f0f0f0"></div></div>
+            <div class="form-row">
+              <span class="form-label">Kommentar:</span>
+              <div class="form-control">
+                <div class="rte-toolbar">
+                  <select style="font-size:11px;border:none;background:transparent;font-family:inherit"><option>Manrope</option></select>
+                  <button class="rte-btn"><b>B</b></button>
+                  <button class="rte-btn"><i>I</i></button>
+                  <button class="rte-btn" style="text-decoration:underline">U</button>
+                  <button class="rte-btn">Aa</button>
+                  <button class="rte-btn">AA</button>
+                  <button class="rte-btn">&#128279;</button>
+                  <button class="rte-btn">&#8942;</button>
+                </div>
+                <div class="rte-area"></div>
+              </div>
+            </div>
+            <div class="form-row"><span class="form-label">Upprättad datum:</span><div class="form-control"><input type="text" class="form-input" value="" style="background:#f0f0f0"></div></div>
+            <div class="form-row"><span class="form-label">Reviderad av:</span><div class="form-control"><input type="text" class="form-input" value="" style="background:#f0f0f0"></div></div>
+            <div class="form-row"><span class="form-label">Reviderad datum:</span><div class="form-control"><input type="text" class="form-input" value="" style="background:#f0f0f0"></div></div>
+          </div>
+        </div>
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'budget-kostnader')" data-tab="budget-kostnader">Kostnader</div>
+          <div class="tab" onclick="switchSubTab(this,'budget-intakter')" data-tab="budget-intakter">Intäkter</div>
+        </div>
+        <div class="sub-tab-content active" id="budget-kostnader">
+          <div class="budget-sub-toolbar">
+            <span style="font-size:12px">&#9664;</span>
+            <button class="tool-btn green">+</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn">&#128197;</button>
+            <button class="tool-btn">&#9998;</button>
+            <span style="font-size:12px;color:#555">Revision:</span>
+            <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:120px"><option value=""></option></select>
+            <div class="divider"></div>
+            <button class="tool-btn">&#10140; Skapa budget från &#9660;</button>
+            <button class="tool-btn">&#8680; Slå samman rader</button>
+            <button class="tool-btn">Ändringslogg</button>
+            <button class="tool-btn" style="color:#f59e0b">&#9888; Saknas i budget</button>
+            <button class="tool-btn">Sammanställning</button>
+            <div style="margin-left:auto"><button class="tool-btn">&#8635;</button></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 8px;font-size:12px;background:#f8f8f8">
+            <span class="row-count">0 p...</span>
+            <span>0</span><span>0</span><span>0</span>
+          </div>
+          <div class="scrollable-x">
+            <table class="grid-table">
+              <thead>
+                <tr>
+                  <th colspan="4" style="text-align:center">Dimensioner</th>
+                  <th colspan="4" style="text-align:center">Budget</th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox"></th>
+                  <th>Konto</th><th>Kontobes...</th><th>Aktivitet</th><th>Läge</th>
+                  <th>Kalkylerad kostnad</th><th>Justering</th><th>Produktionsbudget</th><th>Kod</th><th>Beskrivning</th>
+                </tr>
+              </thead>
+              <tbody><tr><td colspan="10" style="text-align:center;color:#aaa;padding:20px">Inga budgetrader</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sub-tab-content" id="budget-intakter">
+          <div style="padding:20px;color:#aaa;text-align:center">Inga intäktsrader</div>
+        </div>
+      </div>
+      <!-- ===== TAB: INKÖP ===== -->
+      <div class="tab-content" id="tab-inkop">
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'inkop-inkop')" data-tab="inkop-inkop">Inköp</div>
+          <div class="tab" onclick="switchSubTab(this,'inkop-tidsplan')" data-tab="inkop-tidsplan">Tidsplan</div>
+          <div class="tab" onclick="switchSubTab(this,'inkop-dokument')" data-tab="inkop-dokument">Dokument</div>
+        </div>
+        <div class="sub-tab-content active" id="inkop-inkop">
+          <div class="toolbar">
+            <span style="font-size:12px;font-weight:600">Inköp</span>
+            <button class="tool-btn green">+</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn">Lägg till inköpspost</button>
+            <button class="tool-btn">&#10140; Skapa inköpspost från &#9660;</button>
+            <button class="tool-btn" style="color:#aaa">Ändra inköpspost</button>
+            <button class="tool-btn">&#9993; Skicka e-post</button>
+            <button class="tool-btn">Visa e-postarkiv</button>
+            <button class="tool-btn">&#128247;</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 8px;font-size:12px;background:#f8f8f8">
+            <span class="row-count">0 post...</span>
+          </div>
+          <div class="scrollable-x">
+            <table class="grid-table">
+              <thead><tr>
+                <th><input type="checkbox"></th>
+                <th>Inköp nr</th><th>Inköpsor... &#9432;</th><th>Benämning</th>
+                <th>Företagskategori</th><th>Kontonr</th><th>Status</th><th>Ansvarig</th>
+                <th>Inköpsbudget</th><th>Inköpsmål (%)</th><th>Köpt su...</th>
+              </tr></thead>
+              <tbody><tr><td colspan="11" style="text-align:center;color:#aaa;padding:20px">Inga inköp</td></tr></tbody>
+            </table>
+          </div>
+          <div style="height:4px;background:#e0e0e0"></div>
+          <div class="inline-tab-bar">
+            <div class="tab active" onclick="switchSubTab(this,'inkop-overgripande')">Inköp - övergripande</div>
+            <div class="tab" onclick="switchSubTab(this,'inkop-rader')">Inköpsrader</div>
+            <div class="tab" onclick="switchSubTab(this,'inkop-lev')">Leverantörer</div>
+            <div class="tab" onclick="switchSubTab(this,'inkop-dok')">Dokument</div>
+            <div class="tab" onclick="switchSubTab(this,'inkop-betal')">Betalplan</div>
+            <div class="tab" onclick="switchSubTab(this,'inkop-check')">Checklistor</div>
+          </div>
+          <div id="inkop-lev-panel">
+            <div class="toolbar">
+              <span style="font-size:12px;font-weight:600">Leverantör</span>
+              <button class="tool-btn green">+</button>
+              <button class="tool-btn">&#128190;</button>
+              <button class="tool-btn">&#128465;</button>
+              <div class="divider"></div>
+              <button class="tool-btn">Lägg till leverantör</button>
+              <button class="tool-btn" style="color:#aaa">Visa dokument</button>
+              <button class="tool-btn">Spara som ny leverantör</button>
+              <button class="tool-btn" style="color:#aaa">Visa leverantör</button>
+              <button class="tool-btn">&#9993; Skicka e-post</button>
+              <button class="tool-btn">Visa alla</button>
+              <button class="tool-btn">&#62; &#60;</button>
+            </div>
+            <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+              <span class="row-count">0 poster</span>
+            </div>
+            <table class="grid-table">
+              <thead><tr><th><input type="checkbox"></th><th>Leverantör</th><th>Leverantörsstatus</th><th>Leverantörskontakt</th><th>Roll</th><th>Telefon</th><th>Mobil</th><th>E-post</th><th>Status</th></tr></thead>
+              <tbody><tr><td colspan="9" style="text-align:center;color:#aaa;padding:16px">Inga leverantörer</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sub-tab-content" id="inkop-tidsplan"><div style="padding:20px;color:#aaa">Tidsplan - ingen data</div></div>
+        <div class="sub-tab-content" id="inkop-dokument"><div style="padding:20px;color:#aaa">Dokument - ingen data</div></div>
+      </div>
+
+      <!-- ===== TAB: ARBETSORDER ===== -->
+      <div class="tab-content" id="tab-arbetsorder">
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'ao-huvud')" data-tab="ao-huvud">Huvud</div>
+          <div class="tab" onclick="switchSubTab(this,'ao-resurs')" data-tab="ao-resurs">Resursuppföljning</div>
+        </div>
+        <div class="sub-tab-content active" id="ao-huvud">
+          <div class="toolbar">
+            <button class="tool-btn green">+</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn">Lägg till arbetsorder</button>
+            <button class="tool-btn">&#9998;</button>
+            <button class="tool-btn">&#128203;</button>
+            <button class="tool-btn">Skapa faktura</button>
+            <button class="tool-btn">&#11123; Importera data</button>
+            <button class="tool-btn">&#128247; &#9660;</button>
+            <label><input type="checkbox"> Visa avslutade AO</label>
+          </div>
+          <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+            <span class="row-count">1 post</span>
+          </div>
+          <div class="scrollable-x">
+            <table class="grid-table">
+              <thead><tr>
+                <th><input type="checkbox"></th>
+                <th>AO nr</th><th>Beskrivning</th><th>Uppdragsbeskrivning</th>
+                <th>Kund</th><th>Kundkontakt</th><th>Status</th>
+                <th>Ekonomistatus</th><th>Ersättningsfo...</th>
+              </tr></thead>
+              <tbody>
+                <tr class="selected"><td><input type="checkbox"></td><td>1</td><td>Grundåtagande</td><td></td><td>Energiprincipen S...</td><td></td><td><span class="status-badge status-ny">Ny</span></td><td></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="height:4px;background:#e0e0e0"></div>
+          <div class="inline-tab-bar">
+            <div class="tab active">Arbetsorder - övergripande</div>
+            <div class="tab active" style="background:#e8f4ee">Orderrader</div>
+            <div class="tab">Checklistor</div>
+            <div class="tab">Foton/dokument</div>
+            <div class="tab">Bokf kostnad</div>
+            <div class="tab">Bokf intäkt</div>
+            <div class="tab">Bokf timmar</div>
+            <div class="tab">Leverantörer</div>
+          </div>
+          <div class="toolbar">
+            <span style="font-size:12px;font-weight:600">Detaljer</span>
+            <button class="tool-btn green">+</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn">&#128197;</button>
+            <button class="tool-btn">&#9998;</button>
+            <button class="tool-btn">&#128203;</button>
+            <button class="tool-btn">&#11123; Importera data</button>
+            <button class="tool-btn">&#8680; Flytta poster</button>
+            <button class="tool-btn"><b>B</b></button>
+            <button class="tool-btn"><i>I</i></button>
+            <button class="tool-btn" style="text-decoration:underline">U</button>
+          </div>
+          <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd;display:flex;gap:16px">
+            <span class="row-count">0 poster</span>
+            <span>0,00</span><span>0,00</span><span>0,00</span>
+          </div>
+          <div class="scrollable-x">
+            <table class="grid-table">
+              <thead><tr><th><input type="checkbox"></th><th>Kod</th><th>Benämning</th><th>Kontonr</th><th>Enhet</th><th>Kalkyl mgd</th><th>Kalk kostnad</th><th>Utf män...</th><th>Kostn/enh</th><th>Pris/enh</th><th>Prislista pris/enh</th></tr></thead>
+              <tbody><tr><td colspan="11" style="text-align:center;color:#aaa;padding:16px">Inga orderrader</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sub-tab-content" id="ao-resurs"><div style="padding:20px;color:#aaa">Resursuppföljning - ingen data</div></div>
+      </div>
+      <!-- ===== TAB: ANBUD/AVTAL ===== -->
+      <div class="tab-content" id="tab-anbud">
+        <div class="toolbar">
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn">Hämta anbudsmall</button>
+          <button class="tool-btn">&#128247;</button>
+        </div>
+        <div style="padding:8px">
+          <div class="form-row" style="margin-bottom:12px">
+            <span class="form-label">Offertdatum:</span>
+            <div class="form-control">
+              <div class="input-with-btn" style="max-width:200px">
+                <input type="text" class="form-input" value="">
+                <button class="input-btn">&#128197;</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-section" style="margin:0 0 8px 0">
+            <div class="section-header" style="justify-content:space-between">
+              <span>Priser vid löpande arbete</span>
+              <span><button class="tool-btn" style="padding:0 4px">&#9998;</button><button class="tool-btn" style="padding:0 4px">&#10063;</button></span>
+            </div>
+            <div class="rte-area" style="min-height:100px"></div>
+          </div>
+          <div class="form-section" style="margin:0 0 8px 0">
+            <div class="section-header" style="justify-content:space-between">
+              <span>Betalning/fakturering</span>
+              <span><button class="tool-btn" style="padding:0 4px">&#9998;</button><button class="tool-btn" style="padding:0 4px">&#10063;</button></span>
+            </div>
+            <div class="rte-area" style="min-height:100px"></div>
+          </div>
+          <div class="form-section" style="margin:0 0 8px 0">
+            <div class="section-header" style="justify-content:space-between">
+              <span>Resursplanering</span>
+              <span><button class="tool-btn" style="padding:0 4px">&#9998;</button><button class="tool-btn" style="padding:0 4px">&#10063;</button></span>
+            </div>
+            <div class="rte-area" style="min-height:100px"></div>
+          </div>
+          <div class="form-section" style="margin:0 0 8px 0">
+            <div class="section-header" style="justify-content:space-between">
+              <span>Övriga villkor/förtydligande</span>
+              <span><button class="tool-btn" style="padding:0 4px">&#9998;</button><button class="tool-btn" style="padding:0 4px">&#10063;</button></span>
+            </div>
+            <div class="rte-area" style="min-height:100px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: AVVIKELSE ===== -->
+      <div class="tab-content" id="tab-avvikelse">
+        <div style="display:flex;height:calc(100vh - 160px)">
+          <div style="flex:0 0 55%;border-right:1px solid #ddd;overflow:auto">
+            <div class="toolbar">
+              <span style="font-size:12px;font-weight:600">Avvikelse</span>
+              <button class="tool-btn green">+</button>
+              <button class="tool-btn">&#128190;</button>
+              <button class="tool-btn">&#128465;</button>
+              <div class="divider"></div>
+              <button class="tool-btn" style="color:#aaa">Skapa ÄTA från avvikelse</button>
+              <button class="tool-btn" style="color:#aaa">&#9993; Skicka e-post</button>
+              <button class="tool-btn" style="color:#aaa">Visa statushistorik</button>
+              <button class="tool-btn">&#11123; Imp...</button>
+              <button class="tool-btn">&#62;</button>
+            </div>
+            <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+              <span class="row-count">0 poster</span>
+            </div>
+            <table class="grid-table">
+              <thead><tr>
+                <th><input type="checkbox"></th>
+                <th>Avikels...</th><th>Referen...</th><th>Benämning</th>
+                <th>Rapporterat av</th><th>Noterad dat...</th><th>Status</th>
+              </tr></thead>
+              <tbody><tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Inga avvikelser</td></tr></tbody>
+            </table>
+          </div>
+          <div style="flex:1;overflow-y:auto;background:white;padding:0">
+            <div class="inline-tab-bar">
+              <div class="tab active">Detaljer</div>
+              <div class="tab">Kommunikation</div>
+              <div class="tab">Dokument</div>
+            </div>
+            <div style="padding:8px">
+              <div class="form-grid">
+                <div class="form-row"><span class="form-label" style="font-size:11px">Avikelsenr:</span><div class="form-control"><input type="text" class="form-input" value="" style="background:#f0f0f0"></div></div>
+                <div class="form-row"><span class="form-label" style="font-size:11px">Referensnr:</span><div class="form-control"><input type="text" class="form-input" value="" style="background:#f0f0f0"></div></div>
+                <div class="form-row"><span class="form-label" style="font-size:11px">Benämning:</span><div class="form-control"><input type="text" class="form-input" value=""></div></div>
+                <div class="form-row"><span class="form-label" style="font-size:11px">Rapporterat av:</span><div class="form-control"><div class="input-with-btn"><select class="form-select"><option value=""></option></select><button class="input-btn" style="font-size:11px">&#9660;</button></div></div></div>
+                <div class="form-row"><span class="form-label" style="font-size:11px">Noterad datum:</span><div class="form-control"><div class="input-with-btn"><input type="text" class="form-input" value=""><button class="input-btn">&#128197;</button></div></div></div>
+                <div class="form-row"><span class="form-label" style="font-size:11px">Status:</span><div class="form-control"><div class="input-with-btn"><select class="form-select"><option value=""></option></select><button class="input-btn" style="font-size:11px">&#9660;</button></div></div></div>
+                <div class="form-row"><span class="form-label" style="font-size:11px">Avvikelsetyp:</span><div class="form-control"><select class="form-select"><option value=""></option></select></div></div>
+                <div class="form-row"><span class="form-label" style="font-size:11px">ÄTA-referens:</span><div class="form-control"><select class="form-select"><option value=""></option></select></div></div>
+              </div>
+              <hr style="border:none;border-top:1px solid #eee;margin:8px 0">
+              <div style="font-size:11px;font-weight:600;color:#1a5c3a;margin-bottom:6px">SPECIFIKATION</div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Kund:</span><div class="form-control"><div class="input-with-btn"><select class="form-select"><option value=""></option></select><button class="input-btn" style="font-size:11px">&#9660;</button></div></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Kundkontakt:</span><div class="form-control"><div class="input-with-btn"><select class="form-select"><option value=""></option></select><button class="input-btn">...</button></div></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Klassificering:</span><div class="form-control"><select class="form-select"><option value=""></option></select></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Beskrivning:</span><div class="form-control"><div class="input-with-btn"><textarea class="form-textarea" style="min-height:40px"></textarea><button class="input-btn">...</button></div></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Orsak:</span><div class="form-control"><div class="input-with-btn"><textarea class="form-textarea" style="min-height:40px"></textarea><button class="input-btn">...</button></div></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Läge:</span><div class="form-control"><div class="input-with-btn"><textarea class="form-textarea" style="min-height:40px"></textarea><button class="input-btn">...</button></div></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Föreslagen åtgärd:</span><div class="form-control"><div class="input-with-btn"><textarea class="form-textarea" style="min-height:40px"></textarea><button class="input-btn">...</button></div></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Anmälan gjord:</span><div class="form-control"><div class="input-with-btn"><input type="text" class="form-input" value=""><button class="input-btn">&#128197;</button></div></div></div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Besked senast:</span><div class="form-control"><div class="input-with-btn"><input type="text" class="form-input" value=""><button class="input-btn">&#128197;</button></div></div></div>
+              <hr style="border:none;border-top:1px solid #eee;margin:8px 0">
+              <div style="font-size:11px;font-weight:600;color:#1a5c3a;margin-bottom:6px">BESLUT FRÅN BESTÄLLARE</div>
+              <div class="form-row"><span class="form-label" style="font-size:11px">Beslut:</span><div class="form-control"><div class="input-with-btn"><input type="text" class="form-input" value=""><button class="input-btn">...</button></div></div></div>
+              <div style="display:flex;justify-content:flex-end;margin-top:8px">
+                <button class="tool-btn" style="background:#1a5c3a;color:white;border-color:#1a5c3a">Spara</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ===== TAB: ÄTA ===== -->
+      <div class="tab-content" id="tab-ata">
+        <div class="toolbar">
+          <span style="font-size:12px;font-weight:600">ÄTA</span>
+          <button class="tool-btn green">+</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn" style="color:#aaa">Skapa faktura</button>
+          <button class="tool-btn" style="color:#aaa">&#9993; Skicka ÄTA</button>
+          <button class="tool-btn" style="color:#aaa">Visa e-postarkiv</button>
+          <button class="tool-btn">&#11123; Importera data</button>
+          <button class="tool-btn">&#128247; &#9660;</button>
+          <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:100px"><option>Visa aktiva</option><option>Visa alla</option></select>
+        </div>
+        <table class="grid-table">
+          <thead><tr>
+            <th><input type="checkbox"></th>
+            <th>ÄTA nr</th><th>Benämning</th><th>Uppdragsbeskrivning</th>
+            <th>Avvikelse-referens</th><th>Kund</th><th>Entreprenadtyp</th><th>Följesel re...</th>
+          </tr></thead>
+          <tbody><tr><td colspan="8" style="text-align:center;color:#aaa;padding:20px">Inga ÄTA-poster</td></tr></tbody>
+        </table>
+        <div style="height:4px;background:#e0e0e0"></div>
+        <div class="inline-tab-bar">
+          <div class="tab active">ÄTA Generellt</div>
+          <div class="tab">Orderrader</div>
+          <div class="tab">Checklistor</div>
+          <div class="tab">Foton/dokument</div>
+          <div class="tab">Bokf kostnad</div>
+          <div class="tab">Bokf intäkt</div>
+          <div class="tab">Bokf timmar</div>
+        </div>
+        <div class="toolbar">
+          <span style="font-size:12px;font-weight:600">Detaljer</span>
+          <button class="tool-btn green">+</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn">&#128197;</button>
+          <button class="tool-btn">&#9998;</button>
+          <button class="tool-btn">&#128203;</button>
+          <button class="tool-btn">&#11123; Importera data</button>
+          <button class="tool-btn">&#8680; Flytta poster</button>
+          <button class="tool-btn"><b>B</b></button>
+          <button class="tool-btn"><i>I</i></button>
+          <button class="tool-btn" style="text-decoration:underline">U</button>
+        </div>
+        <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd;display:flex;gap:16px">
+          <span class="row-count">0 poster</span>
+          <span>0,00</span>
+        </div>
+        <table class="grid-table">
+          <thead><tr><th><input type="checkbox"></th><th>Kod</th><th>Benämning</th><th>Kontonr</th><th>Enhet</th><th>Utf mä...</th><th>Pris/enh</th><th>Prislista pris/enh</th><th>Utförd datum</th><th>ÄTA belopp</th></tr></thead>
+          <tbody><tr><td colspan="10" style="text-align:center;color:#aaa;padding:16px">Inga rader</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- ===== TAB: PLANERING ===== -->
+      <div class="tab-content" id="tab-planering">
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'plan-resurs')" data-tab="plan-resurs">Resursplanering</div>
+          <div class="tab" onclick="switchSubTab(this,'plan-ao')" data-tab="plan-ao">Arbetsorder</div>
+          <div class="tab" onclick="switchSubTab(this,'plan-tidsplan-ao')" data-tab="plan-tidsplan-ao">Tidsplan arbetsorder</div>
+          <div class="tab" onclick="switchSubTab(this,'plan-tidsplan')" data-tab="plan-tidsplan">Tidsplan</div>
+        </div>
+        <div class="sub-tab-content active" id="plan-resurs">
+          <div class="toolbar">
+            <button class="tool-btn">&#9664;</button>
+            <span style="font-size:12px;color:#555">Visa endast grupp:</span>
+            <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:100px"><option value=""></option></select>
+            <span style="font-size:12px;color:#555">Visa endast valt projekt:</span>
+            <label><input type="checkbox"></label>
+            <div style="margin-left:auto;display:flex;gap:4px">
+              <button class="sf-btn" onclick="switchPlanView(this,'dag')">Dag</button>
+              <button class="sf-btn" onclick="switchPlanView(this,'vecka')">Vecka</button>
+              <button class="sf-btn active" onclick="switchPlanView(this,'tvaveckor')">Två veckor</button>
+              <button class="sf-btn" onclick="switchPlanView(this,'manad')">Månad</button>
+              <button class="sf-btn" onclick="switchPlanView(this,'kvartal')">Kvartal</button>
+              <button class="sf-btn" onclick="switchPlanView(this,'ar')">Ar</button>
+            </div>
+            <span style="font-size:12px;color:#555;margin-left:8px">Centrera på datum:</span>
+            <input type="text" class="form-input" value="2026-06-05" style="width:100px">
+            <button class="tool-btn">&#9654;</button>
+          </div>
+          <div class="scrollable-x">
+            <table class="planning-table">
+              <thead>
+                <tr>
+                  <th class="name-col">Namn</th>
+                  <th class="date-col" colspan="3" style="text-align:center">V.22 maj 2026</th>
+                  <th class="date-col" colspan="7" style="text-align:center;background:#e8f4ee">V.23 jun 2026</th>
+                  <th class="date-col" colspan="7" style="text-align:center">V.24 jun 2026</th>
+                </tr>
+                <tr>
+                  <th class="name-col"></th>
+                  <th>fre 29</th><th>lör 30</th><th>sön 31</th>
+                  <th>mån 01</th><th>tis 02</th><th>ons 03</th><th>tor 04</th><th style="background:#ffe0e0">fre 05</th><th>lör 06</th><th>sön 07</th>
+                  <th>mån 08</th><th>tis 09</th><th>ons 10</th><th>tor 11</th>
+                </tr>
+                <tr>
+                  <th class="name-col"></th>
+                  <td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td>
+                  <td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td>
+                  <td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td><td style="text-align:center;font-size:10px">0</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="name-col">Karl-Magnus Hake</td><td colspan="3" style="background:#f5f5f5"></td><td colspan="7"></td><td colspan="4"></td></tr>
+                <tr><td class="name-col">Mats Segerdahl</td><td colspan="3" style="background:#f5f5f5"></td><td colspan="7"></td><td colspan="4"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="height:4px;background:#e0e0e0"></div>
+          <div class="toolbar">
+            <label><input type="checkbox"> Visa avslutade AO</label>
+            <div style="margin-left:auto"><button class="tool-btn">&#8635;</button></div>
+          </div>
+          <table class="grid-table">
+            <thead><tr><th><input type="checkbox"></th><th>AO nr</th><th>Status</th><th>Beskrivning</th><th>Uppdragsbeskrivning</th><th>Ansvarig service...</th><th>Produktionsstart ...</th></tr></thead>
+            <tbody>
+              <tr class="selected"><td><input type="checkbox"></td><td>1</td><td><span class="status-badge status-ny">Ny</span></td><td>24-0401-1, Grundåtag...</td><td></td><td></td><td>2024-04-15</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sub-tab-content" id="plan-ao"><div style="padding:20px;color:#aaa">Arbetsorder planering - ingen data</div></div>
+        <div class="sub-tab-content" id="plan-tidsplan-ao"><div style="padding:20px;color:#aaa">Tidsplan arbetsorder - ingen data</div></div>
+        <div class="sub-tab-content" id="plan-tidsplan"><div style="padding:20px;color:#aaa">Tidsplan - ingen data</div></div>
+      </div>
+      <!-- ===== TAB: BOKF KOSTN/INT ===== -->
+      <div class="tab-content" id="tab-bokf-kostn">
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'bokf-kostnader')" data-tab="bokf-kostnader">Kostnader</div>
+          <div class="tab" onclick="switchSubTab(this,'bokf-intakter')" data-tab="bokf-intakter">Intäkter</div>
+        </div>
+        <div class="sub-tab-content active" id="bokf-kostnader">
+          <div class="toolbar">
+            <span style="font-size:12px;font-weight:600">Kostnader</span>
+            <button class="tool-btn green">+</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn">Dela verifikat</button>
+            <button class="tool-btn">&#128204; &#9660;</button>
+            <button class="tool-btn">&#128247;</button>
+            <button class="tool-btn">&#128247; &#9660;</button>
+          </div>
+          <div style="display:flex;gap:8px;padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+            <span class="row-count">7 poster</span>
+            <span style="margin-left:auto;font-weight:600">31 758,1</span>
+          </div>
+          <div class="scrollable-x">
+            <table class="grid-table">
+              <thead><tr>
+                <th><input type="checkbox"></th>
+                <th>&#128204;</th>
+                <th>Verifikation nr</th><th>Verifikationstext</th>
+                <th>Projektnr &#9650;</th><th>AO/ÄTA &#9650;</th><th>Konto</th><th>Nettobelopp</th>
+              </tr></thead>
+              <tbody>
+                <tr class="selected"><td><input type="checkbox"></td><td>&#128204;</td><td>4D38</td><td>Levfakt Mellerts Maskin & Fordonsteknik (3155)</td><td><span style="color:#f59e0b">&#9632;</span> 24-0401</td><td>1</td><td>5500</td><td style="text-align:right">6 012,7</td></tr>
+                <tr><td><input type="checkbox"></td><td>&#128204;</td><td>4D39</td><td>Levfakt Agnes Maskin Aktiebolag (3159)</td><td><span style="color:#f59e0b">&#9632;</span> 24-0401</td><td>1</td><td>4394</td><td style="text-align:right">1 470,5</td></tr>
+                <tr><td><input type="checkbox"></td><td>&#128204;</td><td>4D53</td><td>Levfakt N-Mek AB (3169)</td><td><span style="color:#f59e0b">&#9632;</span> 24-0401</td><td>1</td><td>4010</td><td style="text-align:right">3 344,7</td></tr>
+                <tr><td><input type="checkbox"></td><td>&#128204;</td><td>4D58</td><td>Levfakt Agnes Maskin Aktiebolag (3172)</td><td><span style="color:#f59e0b">&#9632;</span> 24-0401</td><td>1</td><td>4510</td><td style="text-align:right">3 000,0</td></tr>
+                <tr><td><input type="checkbox"></td><td>&#128204;</td><td>4D59</td><td>Levfakt Beijer Byggmaterial Aktiebolag (3173)</td><td><span style="color:#f59e0b">&#9632;</span> 24-0401</td><td>1</td><td>4010</td><td style="text-align:right">320,1</td></tr>
+                <tr><td><input type="checkbox"></td><td>&#128204;</td><td>4D65</td><td>Levfakt TRUCKPOOLEN GÖTEBORG AB (3187)</td><td><span style="color:#f59e0b">&#9632;</span> 24-0401</td><td>1</td><td>4600</td><td style="text-align:right">4 640,0</td></tr>
+                <tr><td><input type="checkbox" checked></td><td>&#128204;</td><td>4D67</td><td>Levfakt Besway AB (3185)</td><td><span style="color:#f59e0b">&#9632;</span> 24-0401</td><td>1</td><td>4000</td><td style="text-align:right">12 970,0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Faktura side tab -->
+          <div style="position:absolute;right:0;top:50%;transform:translateY(-50%)">
+            <div class="faktura-side-tab">Faktura</div>
+          </div>
+        </div>
+        <div class="sub-tab-content" id="bokf-intakter"><div style="padding:20px;color:#aaa">Intäkter - ingen data</div></div>
+      </div>
+
+      <!-- ===== TAB: BOKF TIMMAR ===== -->
+      <div class="tab-content" id="tab-bokf-timmar">
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'tim-projekt')" data-tab="tim-projekt">Timmar projekt</div>
+          <div class="tab" onclick="switchSubTab(this,'tim-person')" data-tab="tim-person">Timmar person</div>
+          <div class="tab" onclick="switchSubTab(this,'tim-attestera')" data-tab="tim-attestera">Attestera timmar och resor</div>
+        </div>
+        <div class="sub-tab-content active" id="tim-projekt">
+          <div class="toolbar">
+            <button class="tool-btn">&#9664;</button>
+            <button class="tool-btn green">+</button>
+            <button class="tool-btn">&#128190;</button>
+            <button class="tool-btn">&#128465;</button>
+            <div class="divider"></div>
+            <button class="tool-btn">&#128247; &#9660;</button>
+            <span style="font-size:12px;color:#555">Visa:</span>
+            <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:120px"><option>Alla timmar</option><option>Egna timmar</option></select>
+            <span style="font-size:12px;color:#555">Månad:</span>
+            <input type="text" class="form-input" value="" style="width:100px">
+            <button class="input-btn">&#128197;</button>
+            <span style="font-size:12px;color:#555">Grupp:</span>
+            <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:100px"><option value=""></option></select>
+            <span style="font-size:12px;color:#555">Anställningsform:</span>
+            <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:100px"><option value=""></option></select>
+            <button class="tool-btn">&#9654;</button>
+          </div>
+          <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+            <span class="row-count">0 poster</span>
+          </div>
+          <table class="grid-table">
+            <thead><tr><th><input type="checkbox"></th><th>Godkä...</th><th>Godkännandedatum</th><th>Godkänd av</th><th>Anställning...</th><th>Personnr</th><th>Namn</th><th>Projektled...</th><th>Projektnr</th><th>Projektnamn</th></tr></thead>
+            <tbody><tr><td colspan="10" style="text-align:center;color:#aaa;padding:20px">Inga timmar</td></tr></tbody>
+          </table>
+          <!-- Side tab -->
+        </div>
+        <div class="sub-tab-content" id="tim-person"><div style="padding:20px;color:#aaa">Timmar person - ingen data</div></div>
+        <div class="sub-tab-content" id="tim-attestera"><div style="padding:20px;color:#aaa">Attestera timmar - ingen data</div></div>
+      </div>
+      <!-- ===== TAB: PROGNOS ===== -->
+      <div class="tab-content" id="tab-prognos">
+        <div class="toolbar">
+          <span style="font-size:12px;font-weight:600">Prognos</span>
+          <button class="tool-btn green">+</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn">&sum; Visa summering</button>
+          <button class="tool-btn">&#8635; Uppdatera prognos</button>
+          <span style="font-size:12px;color:#555">Intäktskonto, ÄTA:</span>
+          <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:120px"><option>3 Intäkter</option></select>
+          <button class="tool-btn">&#128247;</button>
+        </div>
+        <div class="scrollable-x">
+          <table class="grid-table">
+            <thead><tr>
+              <th><input type="checkbox"></th>
+              <th>Låst</th><th>Låsdatum</th><th>Godk 1</th><th>Godk 2</th>
+              <th>Peri...</th><th>Version</th><th>Budget revision</th>
+              <th>Aktiv</th><th>Period start</th><th>Period slut</th>
+              <th>Inkludera ÄTA kostnad</th><th>Inkludera ÄTA int...</th>
+            </tr></thead>
+            <tbody><tr><td colspan="13" style="text-align:center;color:#aaa;padding:20px">Inga prognoser</td></tr></tbody>
+          </table>
+        </div>
+        <div style="height:4px;background:#e0e0e0"></div>
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'prog-kostnader')" data-tab="prog-kostnader">Kostnader</div>
+          <div class="tab" onclick="switchSubTab(this,'prog-intakter')" data-tab="prog-intakter">Intäkter</div>
+        </div>
+        <div class="sub-tab-content active" id="prog-kostnader">
+          <div class="toolbar">
+            <button class="tool-btn">&#128190;</button>
+            <span style="font-size:12px;color:#555">Vy:</span>
+            <select style="font-size:12px;height:24px;border:1px solid #ccc;border-radius:3px;min-width:140px"><option>Konto standard</option></select>
+            <button class="tool-btn" style="color:#aaa">Visa avstämning</button>
+            <button class="tool-btn">Visa alla kolumner</button>
+          </div>
+          <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd;display:flex;gap:16px">
+            <span class="row-count">0 poster</span>
+            <span>0</span><span>0</span><span>0</span><span>0</span><span>0</span>
+          </div>
+          <div class="scrollable-x">
+            <table class="grid-table">
+              <thead>
+                <tr>
+                  <th>Notering</th><th>&#9651;</th><th>Ko...</th>
+                  <th colspan="3" style="text-align:center">Aktuell budget</th>
+                  <th colspan="3" style="text-align:center">Inköp</th>
+                  <th colspan="3" style="text-align:center">Bokfört</th>
+                </tr>
+                <tr>
+                  <th></th><th></th><th></th>
+                  <th>Produktionsbu... &#9432;</th><th>ÄTA totalt &#9432;</th><th>Aktuell produktionsbud... &#9432;</th>
+                  <th>Avtalat be... &#9432;</th><th>Inköpsvinst &#9432;</th><th>ÄTA totalt &#9432;</th>
+                  <th>Bokat...</th><th></th><th></th>
+                </tr>
+              </thead>
+              <tbody><tr><td colspan="12" style="text-align:center;color:#aaa;padding:20px">Inga poster</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sub-tab-content" id="prog-intakter"><div style="padding:20px;color:#aaa">Intäkter - ingen data</div></div>
+      </div>
+
+      <!-- ===== TAB: FAKTURA ===== -->
+      <div class="tab-content" id="tab-faktura">
+        <div class="toolbar">
+          <button class="tool-btn">&#9664;</button>
+          <button class="tool-btn green">+</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn">&#128274;</button>
+          <button class="tool-btn">&#128203;</button>
+          <button class="tool-btn">Uppdatera faktura från &#9660;</button>
+          <button class="tool-btn" style="color:#aaa">&#9993; Skicka faktura</button>
+          <button class="tool-btn">Markera faktura som skickad</button>
+          <button class="tool-btn">Lås upp faktura för omsändning</button>
+          <button class="tool-btn" style="color:#aaa">Visa s...</button>
+        </div>
+        <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+          <span class="row-count">2 poster</span>
+        </div>
+        <div class="scrollable-x">
+          <table class="grid-table">
+            <thead><tr>
+              <th><input type="checkbox"></th>
+              <th>Faktura...</th><th>Externt fakturanr</th><th>Låst</th>
+              <th>Fakturarubrik</th><th>Beskrivning</th><th>Kund</th><th>Kundkontakt</th>
+            </tr></thead>
+            <tbody>
+              <tr class="selected"><td><input type="checkbox"></td><td>323</td><td>351</td><td><input type="checkbox" checked disabled></td><td>Utlägg installation batterilager Skallsjö</td><td></td><td>Energiprincipen S...</td><td></td></tr>
+              <tr><td><input type="checkbox"></td><td>324</td><td>352</td><td><input type="checkbox" checked disabled></td><td>Projektkostnader samt arvode - Batterilager</td><td>Kostnader enligt inves...</td><td>Energiprincipen S...</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="height:4px;background:#e0e0e0"></div>
+        <div class="inline-tab-bar">
+          <div class="tab active">Fakturarader</div>
+          <div class="tab">Faktura - övergripande</div>
+          <div class="tab">Skattereduktion</div>
+          <div class="tab">Fakturabilagor</div>
+        </div>
+        <div class="toolbar">
+          <span style="font-size:12px;font-weight:600">Fakturarader</span>
+          <button class="tool-btn green">+</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn">&#128197;</button>
+          <button class="tool-btn">&#9998;</button>
+          <button class="tool-btn">&#128203;</button>
+          <button class="tool-btn">&#9881;</button>
+          <button class="tool-btn">&#11123; Importera data</button>
+          <button class="tool-btn">Infoga före vald rad</button>
+          <button class="tool-btn">Uppdatera påslag/avdrag</button>
+          <button class="tool-btn">&sum; Summera</button>
+          <button class="tool-btn"><b>B</b></button>
+          <button class="tool-btn"><i>I</i></button>
+          <button class="tool-btn" style="text-decoration:underline">U</button>
+        </div>
+        <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+          <span class="row-count">0 poster</span>
+        </div>
+        <table class="grid-table">
+          <thead><tr><th><input type="checkbox"></th><th>Kod</th><th>Beskrivning</th><th>Kont... &#9432;</th><th>Enhet</th><th>Mängd</th><th>Pris/enh</th><th>Moms</th><th>Påslag (%)</th></tr></thead>
+          <tbody><tr><td colspan="9" style="text-align:center;color:#aaa;padding:16px">Inga fakturarader</td></tr></tbody>
+        </table>
+      </div>
+      <!-- ===== TAB: DAGBOK ===== -->
+      <div class="tab-content" id="tab-dagbok">
+        <div class="sub-tabs">
+          <div class="tab active" onclick="switchSubTab(this,'dagbok-dagbok')">Dagbok</div>
+          <div class="tab" onclick="switchSubTab(this,'dagbok-personalliggare')">Personalliggare</div>
+        </div>
+        <div class="sub-tab-content active" id="dagbok-dagbok">
+          <div style="display:flex;height:calc(100vh - 200px)">
+            <!-- Calendar -->
+            <div style="width:280px;border-right:1px solid #ddd;padding:8px;background:white;flex-shrink:0">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <button class="tool-btn">&#9664;</button>
+                <span style="font-size:13px;font-weight:600;flex:1;text-align:center">2026, juni</span>
+                <button class="input-btn">&#128197;</button>
+                <button class="tool-btn">&#9654;</button>
+              </div>
+              <div class="calendar-grid">
+                <div class="calendar-header-cell">Mån</div><div class="calendar-header-cell">Tis</div>
+                <div class="calendar-header-cell">Ons</div><div class="calendar-header-cell">Tor</div>
+                <div class="calendar-header-cell">Fre</div>
+                <div class="calendar-header-cell" style="color:#cc0000">Lör</div>
+                <div class="calendar-header-cell" style="color:#cc0000">Sön</div>
+                <div class="calendar-day">1</div><div class="calendar-day">2</div><div class="calendar-day">3</div><div class="calendar-day">4</div>
+                <div class="calendar-day today">5</div><div class="calendar-day weekend">6</div><div class="calendar-day weekend">7</div>
+                <div class="calendar-day">8</div><div class="calendar-day">9</div><div class="calendar-day">10</div><div class="calendar-day">11</div><div class="calendar-day">12</div><div class="calendar-day weekend">13</div><div class="calendar-day weekend">14</div>
+                <div class="calendar-day">15</div><div class="calendar-day">16</div><div class="calendar-day">17</div><div class="calendar-day">18</div><div class="calendar-day weekend" style="color:#cc0000">19</div><div class="calendar-day weekend">20</div><div class="calendar-day weekend">21</div>
+                <div class="calendar-day">22</div><div class="calendar-day">23</div><div class="calendar-day">24</div><div class="calendar-day">25</div><div class="calendar-day">26</div><div class="calendar-day weekend">27</div><div class="calendar-day weekend">28</div>
+                <div class="calendar-day">29</div><div class="calendar-day">30</div><div class="calendar-day" style="color:#ccc">1</div><div class="calendar-day" style="color:#ccc">2</div><div class="calendar-day" style="color:#ccc">3</div><div class="calendar-day weekend" style="color:#ccc">4</div><div class="calendar-day weekend" style="color:#ccc">5</div>
+                <div class="calendar-day" style="color:#ccc">6</div><div class="calendar-day" style="color:#ccc">7</div><div class="calendar-day" style="color:#ccc">8</div><div class="calendar-day" style="color:#ccc">9</div><div class="calendar-day" style="color:#ccc">10</div><div class="calendar-day weekend" style="color:#ccc">11</div><div class="calendar-day weekend" style="color:#ccc">12</div>
+              </div>
+            </div>
+            <!-- Right side -->
+            <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+              <div class="toolbar">
+                <button class="tool-btn">&#128190;</button>
+                <button class="tool-btn">&#128465;</button>
+                <div class="divider"></div>
+                <button class="tool-btn">&#128196; Skapa faktura</button>
+                <button class="tool-btn">&#128247; &#9660;</button>
+                <div class="divider"></div>
+                <button class="tool-btn">&#128203; Kopiera</button>
+                <label><input type="checkbox"> Godkänd av arbetsledare</label>
+                <span style="font-size:12px;color:#555">Kundbestämd status:</span>
+                <div style="margin-left:auto"><button class="tool-btn">&#8635;</button></div>
+              </div>
+              <div style="padding:8px;border-bottom:1px solid #eee">
+                <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:6px">Kundgodkännande</div>
+                <div class="dagbok-section">
+                  <div class="dagbok-section-title">Påbörjat och pågående arbete:</div>
+                  <div style="display:flex;gap:4px">
+                    <textarea class="dagbok-textarea"></textarea>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+                <div class="dagbok-section">
+                  <div class="dagbok-section-title">Färdigställt arbete:</div>
+                  <div style="display:flex;gap:4px">
+                    <textarea class="dagbok-textarea"></textarea>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+                <div class="dagbok-section">
+                  <div class="dagbok-section-title">Avvikelser och störningar:</div>
+                  <div style="display:flex;gap:4px">
+                    <textarea class="dagbok-textarea"></textarea>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+                <div class="dagbok-section">
+                  <div class="dagbok-section-title">Ändringar och tilläggsarbeten (ÄTA):</div>
+                  <div style="display:flex;gap:4px">
+                    <textarea class="dagbok-textarea"></textarea>
+                    <button class="input-btn">...</button>
+                  </div>
+                </div>
+              </div>
+              <div class="inline-tab-bar">
+                <div class="tab active">Orderrader</div>
+                <div class="tab">Dokument</div>
+                <div class="tab">Checklista</div>
+              </div>
+              <div class="toolbar">
+                <span style="font-size:12px;font-weight:600">Detaljer</span>
+                <button class="tool-btn green">+</button>
+                <button class="tool-btn">&#128190;</button>
+                <button class="tool-btn">&#128465;</button>
+                <div class="divider"></div>
+                <button class="tool-btn">&#128197;</button>
+                <button class="tool-btn">&#9998;</button>
+                <button class="tool-btn"><b>B</b></button>
+                <button class="tool-btn"><i>I</i></button>
+                <button class="tool-btn" style="text-decoration:underline">U</button>
+              </div>
+              <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd;display:flex;gap:16px">
+                <span class="row-count">0 post...</span>
+                <span>0,00</span>
+              </div>
+              <div class="scrollable-x">
+                <table class="grid-table" style="font-size:11px">
+                  <thead><tr><th><input type="checkbox"></th><th>Kod</th><th>Benämning</th><th>Kontonr</th><th>Enhet</th><th>Utf män...</th><th>Kostn/enh</th><th>Pris/enh</th><th>Antal</th></tr></thead>
+                  <tbody><tr><td colspan="9" style="text-align:center;color:#aaa;padding:12px">Inga rader</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+            <!-- Side tabs -->
+            <div style="width:20px;background:#f0f0f0;border-left:1px solid #ddd;display:flex;flex-direction:column;align-items:center;padding:4px 0">
+              <div style="writing-mode:vertical-rl;font-size:10px;cursor:pointer;padding:8px 2px;color:#555">Arbetsförhållanden</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-tab-content" id="dagbok-personalliggare"><div style="padding:20px;color:#aaa">Personalliggare - ingen data</div></div>
+      </div>
+      <!-- ===== TAB: DAGBOK 2.0 ===== -->
+      <div class="tab-content" id="tab-dagbok2">
+        <div class="toolbar">
+          <span style="font-size:12px;font-weight:600">Dagbok</span>
+        </div>
+        <div class="toolbar" style="background:#f0f0f0">
+          <span style="font-size:12px;font-weight:600">Dagboksblad</span>
+          <button class="tool-btn green">+</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn">&#128203;</button>
+          <button class="tool-btn">&#128196; Skapa faktura</button>
+          <button class="tool-btn">&#9993; Skicka e-post</button>
+          <button class="tool-btn">Visa e-postarkiv</button>
+          <button class="tool-btn">Visa statushistorik</button>
+          <button class="tool-btn">&#128269; Sök i dagbok</button>
+          <button class="tool-btn">&#128247;</button>
+        </div>
+        <div style="padding:4px 8px;font-size:12px;background:#f8f8f8;border-bottom:1px solid #ddd">
+          <span class="row-count">0 poster</span>
+        </div>
+        <div class="scrollable-x">
+          <table class="grid-table">
+            <thead><tr><th><input type="checkbox"></th><th>Datum &#9660;</th><th>Projektnr</th><th>Projektnamn</th><th>AO/ÄTA &#9650;</th><th>AO/ÄTA-benämning</th><th>Byggdag</th><th>Status</th><th>Rapporterat av</th><th>Projektledare</th></tr></thead>
+            <tbody><tr><td colspan="10" style="text-align:center;color:#aaa;padding:20px">Inga dagboksposter</td></tr></tbody>
+          </table>
+        </div>
+        <div style="height:4px;background:#e0e0e0"></div>
+        <div class="inline-tab-bar">
+          <div class="tab active">Noteringar</div>
+          <div class="tab">Väder</div>
+          <div class="tab">Arbetsstyrka</div>
+          <div class="tab">Orderrader</div>
+          <div class="tab">Dokument</div>
+          <div class="tab">Checklistor</div>
+          <div class="tab">Nya och ändrade handlingar</div>
+        </div>
+        <div style="padding:8px;background:#fafafa">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="flex:1;min-width:300px">
+              <div class="form-section">
+                <div class="section-header"><span class="toggle">&#9660;</span> PÅBÖRJAT, PÅGÅENDE, AVSLUTAT</div>
+                <div class="section-body">
+                  <div class="grid-toolbar">
+                    <button class="tool-btn green">+</button>
+                    <button class="tool-btn">&#128190;</button>
+                    <button class="tool-btn">&#128465;</button>
+                    <div class="divider"></div>
+                    <button class="tool-btn">&#9998;</button>
+                    <button class="tool-btn">Hämta noteringar</button>
+                    <div style="margin-left:auto;display:flex;gap:4px">
+                      <button class="tool-btn">&#8635;</button>
+                      <button class="tool-btn">&#9664;</button>
+                      <button class="tool-btn">&#9654;</button>
+                      <button class="tool-btn">&#128190;</button>
+                      <button class="tool-btn">&#10041;</button>
+                    </div>
+                  </div>
+                  <table class="grid-table" style="font-size:11px">
+                    <thead><tr><th><input type="checkbox"></th><th>Beskrivning</th><th>Notering</th><th>Bilder</th><th>&#9651;</th></tr></thead>
+                    <tbody><tr><td colspan="5" style="text-align:center;color:#aaa;padding:12px">Inga noteringar</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;min-width:300px">
+              <div class="form-section">
+                <div class="section-header"><span class="toggle">&#9660;</span> AVVIKELSER, STÖRNINGAR OCH HINDER</div>
+                <div class="section-body">
+                  <div class="grid-toolbar">
+                    <button class="tool-btn green">+</button>
+                    <button class="tool-btn">&#128190;</button>
+                    <button class="tool-btn">&#128465;</button>
+                    <div class="divider"></div>
+                    <button class="tool-btn">&#9998;</button>
+                    <button class="tool-btn">Hämta noteringar</button>
+                    <div style="margin-left:auto;display:flex;gap:4px">
+                      <button class="tool-btn">&#8635;</button><button class="tool-btn">&#9664;</button><button class="tool-btn">&#9654;</button><button class="tool-btn">&#128190;</button><button class="tool-btn">&#10041;</button>
+                    </div>
+                  </div>
+                  <table class="grid-table" style="font-size:11px">
+                    <thead><tr><th><input type="checkbox"></th><th>Beskrivning</th><th>Notering</th><th>Bilder</th><th>&#9651;</th></tr></thead>
+                    <tbody><tr><td colspan="5" style="text-align:center;color:#aaa;padding:12px">Inga noteringar</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+            <div style="flex:1;min-width:300px">
+              <div class="form-section">
+                <div class="section-header"><span class="toggle">&#9660;</span> ÄNDRINGAR OCH TILLÄGGSARBETEN</div>
+                <div class="section-body">
+                  <div class="grid-toolbar">
+                    <button class="tool-btn green">+</button><button class="tool-btn">&#128190;</button><button class="tool-btn">&#128465;</button>
+                    <div class="divider"></div>
+                    <button class="tool-btn">&#9998;</button><button class="tool-btn">Hämta noteringar</button>
+                    <div style="margin-left:auto;display:flex;gap:4px"><button class="tool-btn">&#8635;</button><button class="tool-btn">&#9664;</button><button class="tool-btn">&#9654;</button><button class="tool-btn">&#128190;</button><button class="tool-btn">&#10041;</button></div>
+                  </div>
+                  <table class="grid-table" style="font-size:11px">
+                    <thead><tr><th><input type="checkbox"></th><th>Beskrivning</th><th>Notering</th><th>Bilder</th></tr></thead>
+                    <tbody><tr><td colspan="4" style="text-align:center;color:#aaa;padding:12px">Inga noteringar</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;min-width:300px">
+              <div class="form-section">
+                <div class="section-header"><span class="toggle">&#9660;</span> ÖVRIGT</div>
+                <div class="section-body">
+                  <div class="grid-toolbar">
+                    <button class="tool-btn green">+</button><button class="tool-btn">&#128190;</button><button class="tool-btn">&#128465;</button>
+                    <div class="divider"></div>
+                    <button class="tool-btn">&#9998;</button><button class="tool-btn">Hämta noteringar</button>
+                    <div style="margin-left:auto;display:flex;gap:4px"><button class="tool-btn">&#8635;</button><button class="tool-btn">&#9664;</button><button class="tool-btn">&#9654;</button><button class="tool-btn">&#128190;</button><button class="tool-btn">&#10041;</button></div>
+                  </div>
+                  <table class="grid-table" style="font-size:11px">
+                    <thead><tr><th><input type="checkbox"></th><th>Beskrivning</th><th>Notering</th><th>Bilder</th><th>Inklu...</th></tr></thead>
+                    <tbody><tr><td colspan="5" style="text-align:center;color:#aaa;padding:12px">Inga noteringar</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: DOKUMENT ===== -->
+      <div class="tab-content" id="tab-dokument">
+        <div class="toolbar">
+          <button class="tool-btn green">+ &#9660;</button>
+          <button class="tool-btn">&#128190;</button>
+          <button class="tool-btn">&#128465;</button>
+          <div class="divider"></div>
+          <button class="tool-btn">&#128203;</button>
+          <button class="tool-btn">&#128279;</button>
+          <button class="tool-btn">&#128196;</button>
+          <button class="tool-btn">Dokumentetiketter</button>
+          <button class="tool-btn">Gruppera AO/ÄTA</button>
+          <button class="tool-btn" style="color:#aaa">&#9993; Skicka e-post</button>
+          <button class="tool-btn" style="color:#aaa">Visa e-postarkiv</button>
+          <button class="tool-btn" style="color:#aaa">Visa dokumenthistorik</button>
+          <button class="tool-btn">&#128247;</button>
+          <!-- Side tab for papperskorg -->
+          <div style="margin-left:auto">
+            <div style="writing-mode:vertical-rl;font-size:10px;background:#f0f0f0;border:1px solid #ddd;padding:2px 4px;cursor:pointer">Papperskorg</div>
+          </div>
+        </div>
+        <table class="grid-table">
+          <thead><tr>
+            <th><input type="checkbox"></th>
+            <th></th><th>Beskrivning</th><th>Dokumenttyp</th><th>&#9651;</th>
+            <th>Öppna</th><th>Uppladdad</th><th>Filen senast änd...</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td></td><td>&#128193;</td>
+              <td>&#9660; 24-0401 - Energiprincipen Skallsjö</td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td></td><td>&#128193;</td>
+              <td style="padding-left:24px">&#9660; 1 - Grundåtagande</td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ===== TAB: KARTA ===== -->
+      <div class="tab-content" id="tab-karta">
+        <div class="toolbar">
+          <button class="sf-btn active">Karta</button>
+          <button class="sf-btn">Satellit</button>
+        </div>
+        <div class="map-placeholder">
+          <div style="text-align:center">
+            <div style="font-size:48px">&#128506;</div>
+            <div>Karta &ndash; Linköping och omnejd</div>
+            <div style="font-size:12px;color:#888;margin-top:8px">Google Maps integrering (ej tillgänglig i demo)</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content-area -->
+  </div><!-- end right-panel -->
+</div><!-- end main-wrapper -->
+<script>
+// Tab switching
+function switchMainTab(el, tabId) {
+  // Deactivate all main tabs
+  document.querySelectorAll('#mainTabBar .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  // Activate clicked tab
+  el.classList.add('active');
+  const content = document.getElementById(tabId);
+  if (content) content.classList.add('active');
+  
+  // Scroll tab into view
+  el.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+}
+
+function switchSubTab(el, tabId) {
+  // Find parent sub-tab container
+  const parent = el.closest('.sub-tabs, .inline-tab-bar');
+  if (parent) {
+    parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  }
+  el.classList.add('active');
+  
+  // Find content container
+  const content = document.getElementById(tabId);
+  if (content) {
+    // Deactivate siblings
+    const siblings = content.parentElement.querySelectorAll('.sub-tab-content');
+    siblings.forEach(s => s.classList.remove('active'));
+    content.classList.add('active');
+  }
+}
+
+// Toggle tree node
+function toggleTree(event, nodeId) {
+  event.stopPropagation();
+  const node = document.getElementById(nodeId);
+  if (!node) return;
+  const btn = event.target;
+  if (node.style.display === 'none' || node.style.display === '') {
+    node.style.display = 'block';
+    btn.textContent = '−';
+  } else {
+    node.style.display = 'none';
+    btn.textContent = '+';
+  }
+}
+
+// Select project in tree
+function selectProject(el) {
+  document.querySelectorAll('.tree-item.selected').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Filter tree by status
+function filterTree(el) {
+  el.classList.toggle('active');
+}
+
+// Toggle form section
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.toggle');
+  if (body) {
+    if (body.style.display === 'none') {
+      body.style.display = '';
+      if (toggle) toggle.textContent = '▼';
+    } else {
+      body.style.display = 'none';
+      if (toggle) toggle.textContent = '▶';
+    }
+  }
+}
+
+// Scroll tabs
+function scrollTabs(dir) {
+  const tabBar = document.getElementById('mainTabBar');
+  tabBar.scrollLeft += dir * 150;
+}
+
+// Toggle dropdown
+function toggleDropdown(id) {
+  const menu = document.getElementById(id);
+  if (menu) {
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-item')) {
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+  }
+});
+
+// Resize left panel
+const resizeHandle = document.getElementById('resizeHandle');
+const leftPanel = document.getElementById('leftPanel');
+if (resizeHandle && leftPanel) {
+  let isResizing = false;
+  let startX, startWidth;
+  resizeHandle.addEventListener('mousedown', function(e) {
+    isResizing = true;
+    startX = e.clientX;
+    startWidth = leftPanel.offsetWidth;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!isResizing) return;
+    const width = startWidth + (e.clientX - startX);
+    if (width > 150 && width < 600) leftPanel.style.width = width + 'px';
+  });
+  document.addEventListener('mouseup', function() {
+    isResizing = false;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+}
+
+// Planning view switcher
+function switchPlanView(el, view) {
+  document.querySelectorAll('.status-filter-bar .sf-btn').forEach(b => {
+    if (b.onclick && b.onclick.toString().includes('switchPlanView')) b.classList.remove('active');
+  });
+  el.classList.add('active');
+}
+
+// Show credit info placeholder
+function showCreditInfo() {
+  alert('Kreditinformation: Funktionen ej tillgänglig i demo');
+}
+</script>
+</body>
+</html>
